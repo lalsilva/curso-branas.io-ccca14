@@ -120,7 +120,7 @@ export async function signup (input: any): Promise<any> {
 
 export async function getAccount(accountId: string) {
 	const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
-	const [account] = await connection.query("SELECT * FROM ccca14.account WHERE account_id = $1", [accountId]);
+	const [account] = await connection.query("SELECT * FROM cccat14.account WHERE account_id = $1", [accountId]);
 	connection.$pool.end();
 	return account;
 }
