@@ -33,9 +33,7 @@ test("Não deve criar uma conta se o e-mail for duplicado", async function () {
     };
     // when
     await signup(inputSignup);
-    const outputSignup = await signup(inputSignup);
-    // then
-    expect(outputSignup).toBe(-4);
+    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Conta duplicada"));
 });
 
 test("Não deve criar uma conta se o nome for inválido", async function () {
@@ -48,9 +46,7 @@ test("Não deve criar uma conta se o nome for inválido", async function () {
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    // then
-    expect(outputSignup).toBe(-3);
+    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Nome inválido"));
 });
 
 test("Não deve criar uma conta se o e-mail for inválido", async function () {
@@ -63,9 +59,7 @@ test("Não deve criar uma conta se o e-mail for inválido", async function () {
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    // then
-    expect(outputSignup).toBe(-2);
+    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("E-mail inválido"));
 });
 
 test.each([
@@ -84,9 +78,7 @@ test.each([
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    // then
-    expect(outputSignup).toBe(-1);
+    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("CPF inválido"));
 });
 
 test("Deve criar uma conta para o motorista", async function () {
@@ -121,7 +113,5 @@ test("Não deve criar uma conta para o motorista com a placa inválida", async f
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    // then
-    expect(outputSignup).toBe(-5);
+    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Placa inválida"));
 });

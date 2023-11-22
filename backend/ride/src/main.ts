@@ -67,11 +67,11 @@ export async function signup(input: any): Promise<any> {
 	try {
 		const accountId = crypto.randomUUID();
 		const [account] = await connection.query("select * from cccat14.account where email = $1", [input.email]);
-		if (account) return -4;
-		if (!input.name.match(/[a-zA-Z] [a-zA-Z]+/)) return -3;
-		if (!input.email.match(/^(.+)@(.+)$/)) return -2;
-		if (!validateCpf(input.cpf)) return -1;
-		if (input.isDriver && !input.carPlate.match(/[A-Z]{3}[0-9]{4}/)) return -5;
+		if (account) throw new Error("Conta duplicada");
+		if (!input.name.match(/[a-zA-Z] [a-zA-Z]+/)) throw new Error("Nome inválido");
+		if (!input.email.match(/^(.+)@(.+)$/)) throw new Error("E-mail inválido");
+		if (!validateCpf(input.cpf)) throw new Error("CPF inválido");
+		if (input.isDriver && !input.carPlate.match(/[A-Z]{3}[0-9]{4}/)) throw new Error("Placa inválida");
 		await connection.query("insert into cccat14.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) values ($1, $2, $3, $4, $5, $6, $7)", [accountId, input.name, input.email, input.cpf, input.carPlate, !!input.isPassenger, !!input.isDriver]);
 		return {
 			accountId
