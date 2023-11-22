@@ -1,11 +1,15 @@
 import { getAccount, signup } from "../src/main";
 
-test("Deve criar uma conta para o passageiro", async function () {
+test.each([
+    "82537745086",
+    "33478825040",
+    "85718998000",
+])("Deve criar uma conta para o passageiro", async function (cpf: string) {
     // given
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
-        cpf: "82537745086",
+        cpf,
         isPassenger: true,
         password: "123456"
     };
@@ -64,12 +68,18 @@ test("Não deve criar uma conta se o e-mail for inválido", async function () {
     expect(outputSignup).toBe(-2);
 });
 
-test("Não deve criar uma conta se o cpf for inválido", async function () {
+test.each([
+    "",
+    undefined,
+    null,
+    "111",
+    "111111111111"
+])("Não deve criar uma conta se o cpf for inválido", async function (cpf: any) {
     // given
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
-        cpf: "11111111111",
+        cpf,
         isPassenger: true,
         password: "123456"
     };
