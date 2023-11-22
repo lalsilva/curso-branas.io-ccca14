@@ -3,36 +3,37 @@ import pgp from "pg-promise";
 
 export function validateCpf(cpf: string) {
 	if (!cpf) return false;
-	cpf = cpf.replace(/\D/g, "");
-	if (cpf.length !== 11) return false;
-	if (cpf.split("").every(c => c === cpf[0])) return false;
-	let d1 = 0;
-	let d2 = 0;
-	for (let nCount = 1; nCount < cpf.length - 1; nCount++) {
-		const digito = parseInt(cpf.substring(nCount - 1, nCount));
-		d1 = d1 + (11 - nCount) * digito;
-		d2 = d2 + (12 - nCount) * digito;
-	};
-	let rest = (d1 % 11);
-	let dg1 = (rest < 2) ? 0 : 11 - rest;
-	d2 += 2 * dg1;
-	rest = (d2 % 11);
-	let dg2 = rest < 2 ? 0 : 11 - rest;
-	let nDigVerific = cpf.substring(cpf.length - 2, cpf.length);
-	const nDigResult = "" + dg1 + "" + dg2;
-	return nDigVerific == nDigResult;
+	cpf = clean(cpf);
+	if (isInvalidCpfLength(cpf)) return false;
+	if (isRepeatedCpfDigits(cpf)) return false;
+	const dg1 = calculateDigit(cpf, 10);
+	const dg2 = calculateDigit(cpf, 11);
+	return extractCheckDigit(cpf) == `${dg1}${dg2}`;
 }
 
-function isInvalidName(name: string) {
-	return !RegExp(/[a-zA-Z] [a-zA-Z]+/).exec(name);
+function clean(cpf: string) {
+	return cpf.replace(/\D/g, "");
 }
 
-function isInvalidEmail(email: string) {
-	return !RegExp(/^(.+)@(.+)$/).exec(email);
+function isInvalidCpfLength(cpf: string) {
+	return cpf.length !== 11;
 }
 
-function isInvalidCarPlate(carPlate: string) {
-	return !RegExp(/[A-Z]{3}\d{4}/).exec(carPlate);
+function isRepeatedCpfDigits(cpf: string) {
+	return cpf.split("").every(c => c === cpf[0]);
+}
+
+function calculateDigit(cpf: string, factor: number) {
+	let total = 0;
+	for (const digit of cpf) {
+		if (factor > 1) total += parseInt(digit) * factor--;
+	}
+	const rest = total % 11;
+	return (rest < 2) ? 0 : 11 - rest;
+}
+
+function extractCheckDigit(cpf: string) {
+	return cpf.slice(9);
 }
 
 export async function signup(input: any): Promise<any> {
@@ -52,6 +53,18 @@ export async function signup(input: any): Promise<any> {
 	} finally {
 		await connection.$pool.end();
 	}
+}
+
+function isInvalidName(name: string) {
+	return !RegExp(/[a-zA-Z] [a-zA-Z]+/).exec(name);
+}
+
+function isInvalidEmail(email: string) {
+	return !RegExp(/^(.+)@(.+)$/).exec(email);
+}
+
+function isInvalidCarPlate(carPlate: string) {
+	return !RegExp(/[A-Z]{3}\d{4}/).exec(carPlate);
 }
 
 export async function getAccount(accountId: string) {
