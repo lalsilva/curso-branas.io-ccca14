@@ -63,15 +63,15 @@ export function validateCpf(str: string) {
 }
 
 function isInvalidName(name: string) {
-	return !name.match(/[a-zA-Z] [a-zA-Z]+/);
+	return !RegExp(/[a-zA-Z] [a-zA-Z]+/).exec(name);
 }
 
 function isInvalidEmail(email: string) {
-	return !email.match(/^(.+)@(.+)$/);
+	return !RegExp(/^(.+)@(.+)$/).exec(email);
 }
 
 function isInvalidCarPlate(carPlate: string) {
-	return !carPlate.match(/[A-Z]{3}[0-9]{4}/);
+	return !RegExp(/[A-Z]{3}\d{4}/).exec(carPlate);
 }
 
 export async function signup(input: any): Promise<any> {
