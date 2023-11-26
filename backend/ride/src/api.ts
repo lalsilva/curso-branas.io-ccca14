@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { getAccount, signup } from './main';
+import { signup } from './Signup';
+import { getAccount } from './GetAccount';
 
 export const PORT: number = 3000;
 
