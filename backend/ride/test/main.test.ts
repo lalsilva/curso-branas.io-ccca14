@@ -1,4 +1,9 @@
-import { getAccount, requestRide, signup } from "../src/main";
+import axios from "axios";
+import { requestRide } from "../src/main";
+
+axios.defaults.validateStatus = function () {
+    return true;
+}
 
 test.each([
     "82537745086",
@@ -14,8 +19,10 @@ test.each([
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    const outputGetAccount = await getAccount(outputSignup.accountId);
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    const responseGetAccount = await axios.get(`http://localhost:3000/accounts/${outputSignup.accountId}`);
+    const outputGetAccount = responseGetAccount.data;
     // then
     expect(outputSignup.accountId).toBeDefined();
     expect(outputGetAccount.name).toBe(inputSignup.name);
@@ -32,8 +39,12 @@ test("Não deve criar uma conta se o e-mail for duplicado", async function () {
         password: "123456"
     };
     // when
-    await signup(inputSignup);
-    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Conta duplicada"));
+    await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    // then
+    expect(responseSingup.status).toBe(422);
+    expect(outputSignup.message).toBe("Conta duplicada");
 });
 
 test("Não deve criar uma conta se o nome for inválido", async function () {
@@ -46,7 +57,11 @@ test("Não deve criar uma conta se o nome for inválido", async function () {
         password: "123456"
     };
     // when
-    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Nome inválido"));
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    // then
+    expect(responseSingup.status).toBe(422);
+    expect(outputSignup.message).toBe("Nome inválido");
 });
 
 test("Não deve criar uma conta se o e-mail for inválido", async function () {
@@ -59,7 +74,11 @@ test("Não deve criar uma conta se o e-mail for inválido", async function () {
         password: "123456"
     };
     // when
-    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("E-mail inválido"));
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    // then
+    expect(responseSingup.status).toBe(422);
+    expect(outputSignup.message).toBe("E-mail inválido");
 });
 
 test.each([
@@ -79,7 +98,11 @@ test.each([
         password: "123456"
     };
     // when
-    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("CPF inválido"));
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    // then
+    expect(responseSingup.status).toBe(422);
+    expect(outputSignup.message).toBe("CPF inválido");
 });
 
 test("Deve criar uma conta para o motorista", async function () {
@@ -94,8 +117,10 @@ test("Deve criar uma conta para o motorista", async function () {
         password: "123456"
     };
     // when
-    const outputSignup = await signup(inputSignup);
-    const outputGetAccount = await getAccount(outputSignup.accountId);
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    const responseGetAccount = await axios.get(`http://localhost:3000/accounts/${outputSignup.accountId}`);
+    const outputGetAccount = responseGetAccount.data;
     // then
     expect(outputSignup.accountId).toBeDefined();
     expect(outputGetAccount.name).toBe(inputSignup.name);
@@ -114,7 +139,11 @@ test("Não deve criar uma conta para o motorista com a placa inválida", async f
         password: "123456"
     };
     // when
-    await expect(() => signup(inputSignup)).rejects.toThrow(new Error("Placa inválida"));
+    const responseSingup = await axios.post(`http://localhost:3000/signup`, inputSignup);
+    const outputSignup = responseSingup.data;
+    // then
+    expect(responseSingup.status).toBe(422);
+    expect(outputSignup.message).toBe("Placa inválida");
 });
 
 test("Deve solicitar uma corrida", async () => {
