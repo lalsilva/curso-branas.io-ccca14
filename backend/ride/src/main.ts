@@ -1,7 +1,33 @@
 import crypto from "crypto";
 import pgp from "pg-promise";
+import express, { Request, Response } from "express";
 
-export function validateCpf(cpf: string) {
+export const PORT: number = 3000;
+
+const app = express();
+app.use(express.json());
+
+app.post("/signup", async function (req: Request, res: Response) {
+	try {
+		const input = req.body;
+		const output = await signup(input);
+		return res.json(output);
+	} catch (e: any) {
+		res.status(422).json({
+			message: e.message
+		});
+	}
+});
+
+app.get("/accounts/:accountId", async function (req: Request, res: Response) {
+	const accountId = req.params.accountId;
+	const output = await getAccount(accountId);
+	return res.json(output);
+});
+
+app.listen(PORT, (): void => console.log(`Server running on port ${PORT}`));
+
+function validateCpf(cpf: string) {
 	if (!cpf) return false;
 	cpf = clean(cpf);
 	if (isInvalidCpfLength(cpf)) return false;
@@ -47,7 +73,7 @@ export type TAccount = {
 	password: string;
 }
 
-export async function signup(input: any): Promise<any> {
+async function signup(input: any): Promise<any> {
 	const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
 	try {
 		const accountId = crypto.randomUUID();
@@ -88,7 +114,7 @@ interface IAccount {
 	is_driver: boolean;
 }
 
-export async function getAccount(accountId: string): Promise<IAccount> {
+async function getAccount(accountId: string): Promise<IAccount> {
 	const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
 	const [account] = await connection.query("SELECT * FROM cccat14.account WHERE account_id = $1", [accountId]);
 	connection.$pool.end();
