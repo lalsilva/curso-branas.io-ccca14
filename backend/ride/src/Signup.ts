@@ -13,29 +13,36 @@ export type TAccount = {
 	password: string;
 }
 
-export async function signup(input: any): Promise<any> {
-	const accountDAO = new AccountDAO();
-	input.accountId = crypto.randomUUID();
-	const account = await accountDAO.getByEmail(input.email);
-	if (account) throw new Error("Conta duplicada");
-	if (isInvalidName(input.name)) throw new Error("Nome inválido");
-	if (isInvalidEmail(input.email)) throw new Error("E-mail inválido");
-	if (!validateCpf(input.cpf)) throw new Error("CPF inválido");
-	if (input.isDriver && isInvalidCarPlate(input.carPlate)) throw new Error("Placa inválida");
-	await accountDAO.save(input);
-	return {
-		accountId: input.accountId,
-	};
-}
+export default class Signup {
+	accountDAO: AccountDAO;
 
-function isInvalidName(name: string) {
-	return !RegExp(/[a-zA-Z] [a-zA-Z]+/).exec(name);
-}
+	constructor() {
+		this.accountDAO = new AccountDAO();
+	}
 
-function isInvalidEmail(email: string) {
-	return !RegExp(/^(.+)@(.+)$/).exec(email);
-}
+	async execute(input: any) {
+		input.accountId = crypto.randomUUID();
+		const account = await this.accountDAO.getByEmail(input.email);
+		if (account) throw new Error("Conta duplicada");
+		if (this.isInvalidName(input.name)) throw new Error("Nome inválido");
+		if (this.isInvalidEmail(input.email)) throw new Error("E-mail inválido");
+		if (!validateCpf(input.cpf)) throw new Error("CPF inválido");
+		if (input.isDriver && this.isInvalidCarPlate(input.carPlate)) throw new Error("Placa inválida");
+		await this.accountDAO.save(input);
+		return {
+			accountId: input.accountId,
+		};
+	}
 
-function isInvalidCarPlate(carPlate: string) {
-	return !RegExp(/[A-Z]{3}\d{4}/).exec(carPlate);
+	isInvalidName(name: string) {
+		return !RegExp(/[a-zA-Z] [a-zA-Z]+/).exec(name);
+	}
+
+	isInvalidEmail(email: string) {
+		return !RegExp(/^(.+)@(.+)$/).exec(email);
+	}
+
+	isInvalidCarPlate(carPlate: string) {
+		return !RegExp(/[A-Z]{3}\d{4}/).exec(carPlate);
+	}
 }

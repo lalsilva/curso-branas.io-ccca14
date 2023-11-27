@@ -1,6 +1,6 @@
 import AccountDAO from "./AccountDAO";
 
-interface IAccount {
+export interface IAccount {
 	account_id: string;
 	name: string;
 	email: string;
@@ -10,8 +10,15 @@ interface IAccount {
 	is_driver: boolean;
 }
 
-export async function getAccount(accountId: string): Promise<IAccount> {
-	const accountDAO = new AccountDAO();
-	const account = await accountDAO.getById(accountId);
-	return account;
+export default class GetAccount {
+	accountDAO: AccountDAO;
+
+	constructor() {
+		this.accountDAO = new AccountDAO();
+	}
+
+	async execute(accountId: string): Promise<IAccount> {
+		const account = await this.accountDAO.getById(accountId);
+		return account;
+	}
 }
