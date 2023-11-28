@@ -13,7 +13,7 @@ create table cccat14.account (
 );
 
 create table cccat14.ride (
-	ride_id uuid,
+	ride_id uuid primary key,
 	passenger_id uuid,
 	driver_id uuid,
 	status text,
