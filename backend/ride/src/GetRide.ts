@@ -1,4 +1,4 @@
-import RideDAO from "./RideDAO";
+import RideDAO from "./RideDAODatabase";
 
 export interface IRide {
     ride_id: string;
@@ -15,10 +15,8 @@ export interface IRide {
 }
 
 export default class GetRide {
-    rideDAO: RideDAO;
 
-    constructor() {
-        this.rideDAO = new RideDAO();
+    constructor(private rideDAO: RideDAO) {
     }
 
     async execute(rideId: string): Promise<IRide> {
