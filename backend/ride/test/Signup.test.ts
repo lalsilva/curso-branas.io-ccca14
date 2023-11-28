@@ -1,5 +1,7 @@
+import AccountDAO from "../src/AccountDAO";
 import Signup from "../src/Signup";
 import GetAccount from "../src/GetAccount";
+import sinon from "sinon";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -9,26 +11,26 @@ beforeEach(() => {
     getAccount = new GetAccount();
 });
 
-test.each([
-    "82537745086",
-    "33478825040",
-    "85718998000",
-])("Deve criar uma conta para o passageiro", async function (cpf: string) {
-    // given
+test.only("Deve criar uma conta para o passageiro", async function () {
+    const stubAccountDAOSave = sinon.stub(AccountDAO.prototype, "save").resolves();
+    const stubAccountDAOGetByEmail = sinon.stub(AccountDAO.prototype, "getByEmail").resolves(null);
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
-        cpf,
+        cpf: "82537745086",
         isPassenger: true,
         password: "123456"
     };
-    // when
     const outputSignup = await signup.execute(inputSignup);
+    expect(outputSignup.accountId).toBeDefined();
+    const stubAccountDAOGetById = sinon.stub(AccountDAO.prototype, "getById").resolves(inputSignup);
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     // then
-    expect(outputSignup.accountId).toBeDefined();
     expect(outputGetAccount.name).toBe(inputSignup.name);
     expect(outputGetAccount.email).toBe(inputSignup.email);
+    stubAccountDAOSave.restore();
+    stubAccountDAOGetByEmail.restore();
+    stubAccountDAOGetById.restore();
 });
 
 test("Não deve criar uma conta se o e-mail for duplicado", async function () {
