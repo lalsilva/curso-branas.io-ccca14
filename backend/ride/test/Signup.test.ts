@@ -3,6 +3,8 @@ import GetAccount from "../src/GetAccount";
 import sinon from "sinon";
 import AccountDAODatabase from "../src/AccountDAODataBase";
 import LoggerConsole from "../src/LoggerConsole";
+import AccountDAO from "../src/AccountDAO";
+import Logger from "../src/Logger";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -36,7 +38,7 @@ test("Deve criar uma conta para o passageiro com stub", async function () {
     stubAccountDAOGetById.restore();
 });
 
-test.only("Deve criar uma conta para o passageiro com mock", async function () {
+test("Deve criar uma conta para o passageiro com mock", async function () {
     const mockLogger = sinon.mock(LoggerConsole.prototype);
     mockLogger.expects("log").withArgs("signup John Doe").once();
     const inputSignup = {
@@ -54,6 +56,38 @@ test.only("Deve criar uma conta para o passageiro com mock", async function () {
     expect(outputGetAccount.email).toBe(inputSignup.email);
     mockLogger.verify();
     mockLogger.restore();
+});
+
+test.only("Deve criar uma conta para o passageiro com fake", async function () {
+    const inputSignup = {
+        name: "John Doe",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "82537745086",
+        isPassenger: true,
+        password: "123456"
+    };
+    const accountDAO: AccountDAO = {
+        async save (account: any): Promise<void> {
+        },
+        async getById (accountId: string): Promise<any> {
+            return inputSignup;
+        },
+        async getByEmail (email: string): Promise<any> {
+            return undefined;
+        }
+    }
+    const logger: Logger = {
+        log (message: string): void {
+        }
+    }
+    const signup = new Signup(accountDAO, logger);
+    const getAccount = new GetAccount(accountDAO);
+    const outputSignup = await signup.execute(inputSignup);
+    const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+    // then
+    expect(outputSignup.accountId).toBeDefined();
+    expect(outputGetAccount.name).toBe(inputSignup.name);
+    expect(outputGetAccount.email).toBe(inputSignup.email);
 });
 
 test("Não deve criar uma conta se o e-mail for duplicado", async function () {
