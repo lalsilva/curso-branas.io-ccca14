@@ -58,7 +58,7 @@ test("Deve criar uma conta para o passageiro com mock", async function () {
     mockLogger.restore();
 });
 
-test.only("Deve criar uma conta para o passageiro com fake", async function () {
+test("Deve criar uma conta para o passageiro com fake", async function () {
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
@@ -66,14 +66,16 @@ test.only("Deve criar uma conta para o passageiro com fake", async function () {
         isPassenger: true,
         password: "123456"
     };
+    const accounts: any[] = [];
     const accountDAO: AccountDAO = {
         async save (account: any): Promise<void> {
+            accounts.push(account);
         },
         async getById (accountId: string): Promise<any> {
-            return inputSignup;
+            return accounts.find((account: any) => account.accountId === accountId);
         },
         async getByEmail (email: string): Promise<any> {
-            return undefined;
+            return accounts.find((account: any) => account.email === email);
         }
     }
     const logger: Logger = {
