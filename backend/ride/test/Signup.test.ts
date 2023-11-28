@@ -36,7 +36,7 @@ test("Deve criar uma conta para o passageiro com stub", async function () {
 
 test.only("Deve criar uma conta para o passageiro com mock", async function () {
     const mockLogger = sinon.mock(Logger.prototype);
-    mockLogger.expects("log").resolves({});
+    mockLogger.expects("log").withArgs("signup John Doe").once();
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
@@ -50,6 +50,7 @@ test.only("Deve criar uma conta para o passageiro com mock", async function () {
     expect(outputSignup.accountId).toBeDefined();
     expect(outputGetAccount.name).toBe(inputSignup.name);
     expect(outputGetAccount.email).toBe(inputSignup.email);
+    mockLogger.verify();
 });
 
 test("Não deve criar uma conta se o e-mail for duplicado", async function () {
