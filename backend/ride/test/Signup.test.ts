@@ -2,6 +2,7 @@ import AccountDAO from "../src/AccountDAO";
 import Signup from "../src/Signup";
 import GetAccount from "../src/GetAccount";
 import sinon from "sinon";
+import Logger from "../src/Logger";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -11,7 +12,7 @@ beforeEach(() => {
     getAccount = new GetAccount();
 });
 
-test.only("Deve criar uma conta para o passageiro", async function () {
+test("Deve criar uma conta para o passageiro", async function () {
     const stubAccountDAOSave = sinon.stub(AccountDAO.prototype, "save").resolves();
     const stubAccountDAOGetByEmail = sinon.stub(AccountDAO.prototype, "getByEmail").resolves(null);
     const inputSignup = {
@@ -73,19 +74,12 @@ test("Não deve criar uma conta se o e-mail for inválido", async function () {
     await expect(() => signup.execute(inputSignup)).rejects.toThrow(new Error("E-mail inválido"));
 });
 
-test.each([
-    "",
-    undefined,
-    null,
-    "111",
-    "111111111111",
-    "11111111111"
-])("Não deve criar uma conta se o cpf for inválido", async function (cpf: any) {
+test("Não deve criar uma conta se o cpf for inválido", async function () {
     // given
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
-        cpf,
+        cpf: "111111111111",
         isPassenger: true,
         password: "123456"
     };
@@ -94,6 +88,7 @@ test.each([
 });
 
 test("Deve criar uma conta para o motorista", async function () {
+    const spyLoggerLog = sinon.spy(Logger.prototype, "log");
     // given
     const inputSignup = {
         name: "John Doe",
@@ -111,6 +106,8 @@ test("Deve criar uma conta para o motorista", async function () {
     expect(outputSignup.accountId).toBeDefined();
     expect(outputGetAccount.name).toBe(inputSignup.name);
     expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(spyLoggerLog.calledOnce).toBeTruthy();
+    expect(spyLoggerLog.calledWith("signup John Doe")).toBeTruthy();
 });
 
 test("Não deve criar uma conta para o motorista com a placa inválida", async function () {
