@@ -11,11 +11,7 @@ export interface IAccount {
 }
 
 export default class GetAccount {
-	accountDAO: AccountDAO;
-
-	constructor() {
-		this.accountDAO = new AccountDAO();
-	}
+	constructor(private accountDAO: AccountDAO) { }
 
 	async execute(accountId: string): Promise<IAccount> {
 		const account = await this.accountDAO.getById(accountId);

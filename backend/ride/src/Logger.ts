@@ -1,5 +1,3 @@
-export default class Logger {
-    log(message: string) {
-        console.log(message);
-    }
+export default interface Logger {
+    log(message: string): void;
 }
