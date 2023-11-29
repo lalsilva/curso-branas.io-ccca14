@@ -7,11 +7,11 @@ export default class AcceptRide {
     }
 
     async execute(input: any): Promise<any> {
-        this.logger.log(`accepRide`);
+        this.logger.log(`accepRide ${input.rideId}`);
         const ride = await this.rideDAO.getById(input.rideId);
         if (this.isInvalidRide(ride.status)) throw new Error("Corrida inválida");
         const driver = await this.rideDAO.getByDriverId(input.driverId);
-        if (this.isInvalidDriver(driver)) throw new Error("Motorista em outra corrida");
+        if (driver && this.isInvalidDriver(driver.status)) throw new Error("Motorista em outra corrida");
         input.status = 'accepted';
         await this.rideDAO.update(input.rideId, input.status, input.driverId);
         return {
@@ -23,7 +23,7 @@ export default class AcceptRide {
         return status !== "requested";
     }
 
-    isInvalidDriver(driver: any) {
-        return driver && (driver.status === "accepted" || driver.status === "in_progress");
+    isInvalidDriver(status: string) {
+        return status === "accepted" || status === "in_progress";
     }
 }

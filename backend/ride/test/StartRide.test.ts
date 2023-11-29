@@ -29,7 +29,7 @@ beforeEach(() => {
 
 test("Deve iniciar uma corrida", async () => {
     const inputSignupDriver = {
-        name: "John Doe",
+        name: "John Driver",
         email: `john.doe${Math.random()}@gmail.com`,
         cpf: "82537745086",
         carPlate: "DOT1823",
@@ -41,7 +41,7 @@ test("Deve iniciar uma corrida", async () => {
     const outputGetAccountDriver = await getAccount.execute(outputSignupDriver.accountId);
     expect(outputGetAccountDriver.is_driver).toBe(true);
     const inputSignupPassenger = {
-        name: "John Doe",
+        name: "John Passenger",
         email: `john.doe${Math.random()}@gmail.com`,
         cpf: "82537745086",
         isPassenger: true,
