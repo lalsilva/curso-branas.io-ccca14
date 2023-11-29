@@ -35,20 +35,23 @@ test("Deve solicitar uma corrida", async () => {
         toLong: -47.8106936
     }
     const outputRequestRide = await requestRide.execute(inputRequestRide);
-    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
     expect(outputRequestRide.rideId).toBeDefined();
-    expect(outputGetRide.passenger_id).toBe(inputRequestRide.passengerId);
+    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
+    expect(outputGetRide.status).toBe("requested");
 });
 
-test("Não deve solicitar uma corrida se não for um passageiro", async () => {
+test("Não deve poder solicitar uma corrida se não for um passageiro", async () => {
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
         cpf: "82537745086",
         isPassenger: false,
+        isDriver: true,
+        carPlate: "DOT1823",
         password: "123456"
     };
     const outputSignup = await signup.execute(inputSignup);
+    expect(outputSignup.accountId).toBeDefined();
     const inputRequestRide = {
         passengerId: outputSignup.accountId,
         status: 'requested',
@@ -61,7 +64,7 @@ test("Não deve solicitar uma corrida se não for um passageiro", async () => {
     await expect(() => requestRide.execute(inputRequestRide)).rejects.toThrow(new Error("Não é passageiro"));
 });
 
-test("Não deve solicitar uma corrida se já existir uma solicitação para o passageiro", async () => {
+test("Não deve poder solicitar uma corrida se já existir uma solicitação para o passageiro", async () => {
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,

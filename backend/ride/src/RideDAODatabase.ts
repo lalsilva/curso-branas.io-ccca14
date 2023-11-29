@@ -22,9 +22,9 @@ export default class RideDAODatabase {
         return ride;
     }
 
-    async getNotCompletedByPassengerId(passengerId: string) {
+    async getActiveRideByPassengerId(passengerId: string) {
         const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
-        const [ride] = await connection.query("SELECT * FROM cccat14.ride WHERE passenger_id = $1 AND status <> 'completed'", [passengerId]);
+        const [ride] = await connection.query("SELECT * FROM cccat14.ride WHERE passenger_id = $1 AND status in ('requested', 'accepted', 'in_progress')", [passengerId]);
         await connection.$pool.end();
         return ride;
     }

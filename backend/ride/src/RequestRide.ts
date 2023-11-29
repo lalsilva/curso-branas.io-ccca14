@@ -38,8 +38,8 @@ export default class RequestRide {
 		this.logger.log(`requestRide`);
 		const account = await this.accountDAO.getById(input.passengerId);
 		if (!account.is_passenger) throw new Error("Não é passageiro");
-		const ride = await this.rideDAO.getNotCompletedByPassengerId(input.passengerId);
-		if (ride) throw new Error("Já exsite uma corrida em andamento para esse passageiro");
+		const activeRide = await this.rideDAO.getActiveRideByPassengerId(input.passengerId);
+		if (activeRide) throw new Error("Já exsite uma corrida em andamento para esse passageiro");
 		input.rideId = crypto.randomUUID();
 		input.status = 'requested';
 		input.date = new Date();
