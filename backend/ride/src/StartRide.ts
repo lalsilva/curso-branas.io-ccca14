@@ -6,14 +6,12 @@ export default class StartRide {
     constructor(private rideDAO: RideDAO, private logger: LoggerConsole) {
     }
 
-    async execute(rideId: string): Promise<any> {
-        this.logger.log(`startRide ${rideId}`);
-        const ride = await this.rideDAO.getById(rideId);
+    async execute(input: any): Promise<any> {
+        this.logger.log(`startRide ${input.rideId}`);
+        const ride = await this.rideDAO.getById(input.rideId);
         if (this.isInvalidRide(ride.status)) throw new Error("Corrida inválida");
-        await this.rideDAO.update(rideId, "in_progress");
-        return {
-            rideId
-        }
+        ride.status = "in_progress";
+        await this.rideDAO.update(ride);
     }
 
     isInvalidRide(status: string) {

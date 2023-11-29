@@ -20,7 +20,7 @@ beforeEach(() => {
     signup = new Signup(accountDAO, logger);
     getAccount = new GetAccount(accountDAO);
     requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    acceptRide = new AcceptRide(rideDAO, logger);
+    acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
     getRide = new GetRide(rideDAO);
 });
 
@@ -35,8 +35,6 @@ test("Deve aceitar uma corrida", async () => {
         password: "123456"
     }
     const outputSignupDriver = await signup.execute(inputSignupDriver);
-    const outputGetAccountDriver = await getAccount.execute(outputSignupDriver.accountId);
-    expect(outputGetAccountDriver.is_driver).toBe(true);
     const inputSignupPassenger = {
         name: "John Passenger",
         email: `john.doe${Math.random()}@gmail.com`,
@@ -53,12 +51,43 @@ test("Deve aceitar uma corrida", async () => {
         toLong: -47.8106936
     }
     const outputRequestRide = await requestRide.execute(inputRequestRide);
-    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
-    expect(outputGetRide.status).toBe('requested');
     const inputAcceptRide = {
         rideId: outputRequestRide.rideId,
         driverId: outputSignupDriver.accountId
     }
-    const outputAcceptRide = await acceptRide.execute(inputAcceptRide);
-    expect(outputAcceptRide.rideId).toBe(outputRequestRide.rideId);
+    await acceptRide.execute(inputAcceptRide);
+    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
+    expect(outputGetRide.status).toBe("accepted");
+});
+
+test("Não deve aceitar uma corrida se não for um motorista", async () => {
+    const inputSignupDriver = {
+        name: "John Driver",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "82537745086",
+        isPassenger: true,
+        password: "123456"
+    }
+    const outputSignupDriver = await signup.execute(inputSignupDriver);
+    const inputSignupPassenger = {
+        name: "John Passenger",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "82537745086",
+        isPassenger: true,
+        password: "123456"
+    };
+    const outputSignupPassenger = await signup.execute(inputSignupPassenger);
+    const inputRequestRide = {
+        passengerId: outputSignupPassenger.accountId,
+        fromLat: -21.1837009,
+        fromLong: -47.8415536,
+        toLat: -21.1824996,
+        toLong: -47.8106936
+    }
+    const outputRequestRide = await requestRide.execute(inputRequestRide);
+    const inputAcceptRide = {
+        rideId: outputRequestRide.rideId,
+        driverId: outputSignupDriver.accountId
+    }
+    await expect(() => acceptRide.execute(inputAcceptRide)).rejects.toThrow(new Error("Somente motoristas podem aceitar uma corrida"));
 });

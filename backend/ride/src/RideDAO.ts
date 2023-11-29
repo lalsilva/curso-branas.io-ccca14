@@ -5,5 +5,5 @@ export default interface RideDAO {
     getById(rideId: string): Promise<any>;
     getByDriverId(driverId: string): Promise<any>;
     getActiveRideByPassengerId(passengerId: string): Promise<any>;
-    update(rideId: string, driverId: string, status?: string): Promise<any>;
+    update(ride: any): Promise<any>;
 }

@@ -22,7 +22,7 @@ beforeEach(() => {
     signup = new Signup(accountDAO, logger);
     getAccount = new GetAccount(accountDAO);
     requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    acceptRide = new AcceptRide(rideDAO, logger);
+    acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
     getRide = new GetRide(rideDAO);
     startRide = new StartRide(rideDAO, logger);
 });
@@ -38,8 +38,6 @@ test("Deve iniciar uma corrida", async () => {
         password: "123456"
     }
     const outputSignupDriver = await signup.execute(inputSignupDriver);
-    const outputGetAccountDriver = await getAccount.execute(outputSignupDriver.accountId);
-    expect(outputGetAccountDriver.is_driver).toBe(true);
     const inputSignupPassenger = {
         name: "John Passenger",
         email: `john.doe${Math.random()}@gmail.com`,
@@ -56,14 +54,15 @@ test("Deve iniciar uma corrida", async () => {
         toLong: -47.8106936
     }
     const outputRequestRide = await requestRide.execute(inputRequestRide);
-    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
-    expect(outputGetRide.status).toBe('requested');
     const inputAcceptRide = {
         rideId: outputRequestRide.rideId,
         driverId: outputSignupDriver.accountId
     }
-    const outputAcceptRide = await acceptRide.execute(inputAcceptRide);
-    expect(outputAcceptRide.rideId).toBe(outputRequestRide.rideId);
-    const outputStartRide = await startRide.execute(outputAcceptRide.rideId);
-    expect(outputStartRide.rideId).toBe(outputAcceptRide.rideId);
+    await acceptRide.execute(inputAcceptRide);
+    const inputStartRide = {
+        rideId: outputRequestRide.rideId
+    }
+    await startRide.execute(inputStartRide);
+    const outputGetRide = await getRide.execute(outputRequestRide.rideId);
+    expect(outputGetRide.status).toBe("in_progress");
 });
