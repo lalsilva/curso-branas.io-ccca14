@@ -37,7 +37,7 @@ export default class RequestRide {
 	async execute(input: any) {
 		this.logger.log(`requestRide`);
 		const account = await this.accountDAO.getById(input.passengerId);
-		if (!account.is_passenger) throw new Error("Conta inválida");
+		if (!account.is_passenger) throw new Error("Não é passageiro");
 		const ride = await this.rideDAO.getNotCompletedByPassengerId(input.passengerId);
 		if (ride) throw new Error("Já exsite uma corrida em andamento para esse passageiro");
 		input.rideId = crypto.randomUUID();
