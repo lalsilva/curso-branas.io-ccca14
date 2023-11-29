@@ -29,9 +29,9 @@ export default class RideDAODatabase {
         return ride;
     }
 
-    async update(rideId: string, driverId: string, status: string) {
+    async update(rideId: string, status: string, driverId?: string) {
         const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
-        const [ride] = await connection.query("UPDATE cccat14.ride SET status = $2 WHERE ride_id = $1", [rideId, status]);
+        const [ride] = await connection.query(`UPDATE cccat14.ride SET ${driverId ? 'driver_id = $3,' : ''} status = $2 WHERE ride_id = $1`, [rideId, status, driverId]);
         await connection.$pool.end();
         return ride;
     }

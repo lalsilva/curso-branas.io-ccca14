@@ -13,7 +13,7 @@ export default class AcceptRide {
         const driver = await this.rideDAO.getByDriverId(input.driverId);
         if (this.isInvalidDriver(driver)) throw new Error("Motorista em outra corrida");
         input.status = 'accepted';
-        await this.rideDAO.update(input.rideId, input.driverId, input.status);
+        await this.rideDAO.update(input.rideId, input.status, input.driverId);
         return {
             rideId: input.rideId,
         }
