@@ -16,6 +16,21 @@ beforeEach(() => {
     getAccount = new GetAccount(accountDAO);
 });
 
+test("Deve criar uma conta para o passageiro", async function () {
+    const inputSignup = {
+        name: "John Doe",
+        email: `john.doe${Math.random()}@gmail.com`,
+        cpf: "82537745086",
+        isPassenger: true,
+        password: "123456"
+    };
+    const outputSignup = await signup.execute(inputSignup);
+    expect(outputSignup.accountId).toBeDefined();
+    const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+    expect(outputGetAccount.name).toBe(inputSignup.name);
+    expect(outputGetAccount.email).toBe(inputSignup.email);
+});
+
 test("Deve criar uma conta para o passageiro com stub", async function () {
     const stubAccountDAOSave = sinon.stub(AccountDAODatabase.prototype, "save").resolves();
     const stubAccountDAOGetByEmail = sinon.stub(AccountDAODatabase.prototype, "getByEmail").resolves(null);
