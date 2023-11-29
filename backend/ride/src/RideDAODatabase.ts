@@ -15,9 +15,23 @@ export default class RideDAODatabase {
         return ride;
     }
 
+    async getByDriverId(driverId: string) {
+        const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
+        const [ride] = await connection.query("SELECT * FROM cccat14.ride WHERE driver_id = $1", [driverId]);
+        await connection.$pool.end();
+        return ride;
+    }
+
     async getNotCompletedByPassengerId(passengerId: string) {
         const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
         const [ride] = await connection.query("SELECT * FROM cccat14.ride WHERE passenger_id = $1 AND status <> 'completed'", [passengerId]);
+        await connection.$pool.end();
+        return ride;
+    }
+
+    async update(rideId: string, driverId: string, status: string) {
+        const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
+        const [ride] = await connection.query("UPDATE cccat14.ride SET status = $2 WHERE ride_id = $1", [rideId, status]);
         await connection.$pool.end();
         return ride;
     }
