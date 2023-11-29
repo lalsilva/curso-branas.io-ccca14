@@ -4,6 +4,7 @@ import GetRide, { IRide } from './GetRide';
 import RideDAO from './RideDAO';
 import SignupAccountDAO from "./SignupAccountDAO";
 import Logger from "./Logger";
+import AccountDAO from "./AccountDAO";
 
 export type TRide = {
 	rideId: string;
@@ -21,7 +22,7 @@ export type TRide = {
 
 export default class RequestRide {
 
-	constructor(private rideDAO: RideDAO, private logger: Logger) {
+	constructor(private accountDAO: AccountDAO, private rideDAO: RideDAO, private logger: Logger) {
 	}
 
 	/**
@@ -38,15 +39,13 @@ export default class RequestRide {
 	 */
 	async execute(input: any) {
 		this.logger.log(`requestRide`);
+		const account = await this.accountDAO.getById(input.passengerId);
+		if (!account.is_passenger) throw new Error("Conta inválida");
+		const ride = await this.rideDAO.getNotCompletedByPassengerId(input.passengerId);
+		if (ride) throw new Error("Já exsite uma corrida em andamento para esse passageiro");
 		input.rideId = crypto.randomUUID();
-        input.status = 'requested';
-        input.date = new Date();
-		// const getAccount = new GetAccount();
-		// const getRide = new GetRide();
-		// const account: IAccount = await getAccount.execute(input.passengerId);
-		// if (!account.is_passenger) throw new Error("Não é passageiro");
-		// const ride: IRide = await getRide.execute(input.rideId);
-		// if (ride) throw new Error("Já existe uma corrida em percurso para esse passageiro");
+		input.status = 'requested';
+		input.date = new Date();
 		await this.rideDAO.save(input);
 		return {
 			rideId: input.rideId,

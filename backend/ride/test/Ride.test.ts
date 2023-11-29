@@ -14,7 +14,7 @@ beforeEach(() => {
     const rideDAO = new RideDAODatabase();
     const logger = new LoggerConsole();
     signup = new Signup(accountDAO, logger);
-    requestRide = new RequestRide(rideDAO, logger);
+    requestRide = new RequestRide(accountDAO, rideDAO, logger);
     getRide = new GetRide(rideDAO);
 });
 
