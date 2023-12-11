@@ -1,6 +1,6 @@
-import AccountDAO from "./AccountDAO";
+import AccountDAO from "./AccountRepository";
 import Logger from "./Logger";
-import RideDAO from "./RideDAO";
+import RideDAO from "./RideRepository";
 
 export default class AcceptRide {
 
@@ -10,7 +10,7 @@ export default class AcceptRide {
     async execute(input: any): Promise<any> {
         this.logger.log(`accepRide ${input.rideId}`);
         const account = await this.accountDAO.getById(input.driverId);
-        if (!account.is_driver) throw new Error("Somente motoristas podem aceitar uma corrida");
+        if (account && !account.isDriver) throw new Error("Somente motoristas podem aceitar uma corrida");
         const ride = await this.rideDAO.getById(input.rideId);
         if (this.isInvalidRide(ride.status)) throw new Error("Corrida inválida");
         const driver = await this.rideDAO.getByDriverId(input.driverId);

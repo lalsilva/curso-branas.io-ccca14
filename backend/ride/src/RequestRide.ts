@@ -1,21 +1,7 @@
 import crypto from "crypto";
-import RideDAO from './RideDAO';
+import RideDAO from './RideRepository';
 import Logger from "./Logger";
-import AccountDAO from "./AccountDAO";
-
-export type TRide = {
-	rideId: string;
-	passengerId: string;
-	driverId?: string;
-	status: string;
-	fare?: number;
-	distance?: number;
-	fromLat: number;
-	fromLong: number;
-	toLat: number;
-	toLong: number;
-	date: Date;
-}
+import AccountDAO from "./AccountRepository";
 
 export default class RequestRide {
 
@@ -37,7 +23,7 @@ export default class RequestRide {
 	async execute(input: any) {
 		this.logger.log(`requestRide`);
 		const account = await this.accountDAO.getById(input.passengerId);
-		if (!account.is_passenger) throw new Error("Não é passageiro");
+		if (account && !account.isPassenger) throw new Error("Não é passageiro");
 		const activeRide = await this.rideDAO.getActiveRideByPassengerId(input.passengerId);
 		if (activeRide) throw new Error("Já exsite uma corrida em andamento para esse passageiro");
 		input.rideId = crypto.randomUUID();

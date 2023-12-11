@@ -1,10 +1,11 @@
 import Signup from "../src/Signup";
 import GetAccount from "../src/GetAccount";
 import sinon from "sinon";
-import AccountDAODatabase from "../src/AccountDAODataBase";
+import AccountDAODatabase from "../src/AccountRepositoryDatabase";
 import LoggerConsole from "../src/LoggerConsole";
-import AccountDAO from "../src/AccountDAO";
+import AccountDAO from "../src/AccountRepository";
 import Logger from "../src/Logger";
+import Account from "../src/Account";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -27,27 +28,36 @@ test("Deve criar uma conta para o passageiro", async function () {
     const outputSignup = await signup.execute(inputSignup);
     expect(outputSignup.accountId).toBeDefined();
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
-    expect(outputGetAccount.name).toBe(inputSignup.name);
-    expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(outputGetAccount?.name).toBe(inputSignup.name);
+    expect(outputGetAccount?.email).toBe(inputSignup.email);
 });
 
 test("Deve criar uma conta para o passageiro com stub", async function () {
     const stubAccountDAOSave = sinon.stub(AccountDAODatabase.prototype, "save").resolves();
-    const stubAccountDAOGetByEmail = sinon.stub(AccountDAODatabase.prototype, "getByEmail").resolves(null);
+    const stubAccountDAOGetByEmail = sinon.stub(AccountDAODatabase.prototype, "getByEmail").resolves(undefined);
     const inputSignup = {
         name: "John Doe",
         email: `john.doe${Math.random()}@gmail.com`,
         cpf: "82537745086",
+        carPlate: "",
         isPassenger: true,
+        isDriver: false,
         password: "123456"
     };
     const outputSignup = await signup.execute(inputSignup);
     expect(outputSignup.accountId).toBeDefined();
-    const stubAccountDAOGetById = sinon.stub(AccountDAODatabase.prototype, "getById").resolves(inputSignup);
+    const stubAccountDAOGetById = sinon.stub(AccountDAODatabase.prototype, "getById").resolves(Account.create(
+        inputSignup.name,
+        inputSignup.email,
+        inputSignup.cpf,
+        inputSignup.carPlate,
+        inputSignup.isPassenger,
+        inputSignup.isDriver
+    ));
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     // then
-    expect(outputGetAccount.name).toBe(inputSignup.name);
-    expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(outputGetAccount?.name).toBe(inputSignup.name);
+    expect(outputGetAccount?.email).toBe(inputSignup.email);
     stubAccountDAOSave.restore();
     stubAccountDAOGetByEmail.restore();
     stubAccountDAOGetById.restore();
@@ -67,8 +77,8 @@ test("Deve criar uma conta para o passageiro com mock", async function () {
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     // then
     expect(outputSignup.accountId).toBeDefined();
-    expect(outputGetAccount.name).toBe(inputSignup.name);
-    expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(outputGetAccount?.name).toBe(inputSignup.name);
+    expect(outputGetAccount?.email).toBe(inputSignup.email);
     mockLogger.verify();
     mockLogger.restore();
 });
@@ -103,8 +113,8 @@ test("Deve criar uma conta para o passageiro com fake", async function () {
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     // then
     expect(outputSignup.accountId).toBeDefined();
-    expect(outputGetAccount.name).toBe(inputSignup.name);
-    expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(outputGetAccount?.name).toBe(inputSignup.name);
+    expect(outputGetAccount?.email).toBe(inputSignup.email);
 });
 
 test("Não deve criar uma conta se o e-mail for duplicado", async function () {
@@ -177,8 +187,8 @@ test("Deve criar uma conta para o motorista", async function () {
     const outputGetAccount = await getAccount.execute(outputSignup.accountId);
     // then
     expect(outputSignup.accountId).toBeDefined();
-    expect(outputGetAccount.name).toBe(inputSignup.name);
-    expect(outputGetAccount.email).toBe(inputSignup.email);
+    expect(outputGetAccount?.name).toBe(inputSignup.name);
+    expect(outputGetAccount?.email).toBe(inputSignup.email);
     expect(spyLoggerLog.calledOnce).toBeTruthy();
     expect(spyLoggerLog.calledWith("signup John Doe")).toBeTruthy();
     spyLoggerLog.restore();

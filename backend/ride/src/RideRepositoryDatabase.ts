@@ -1,8 +1,7 @@
 import pgp from 'pg-promise';
-import { TRide } from './RequestRide';
 
-export default class RideDAODatabase {
-    async save(ride: TRide) {
+export default class RideRepositoryDatabase {
+    async save(ride: any) {
         const connection = pgp()("postgres://luizsilva:123456@localhost:5432/estudos");
         await connection.query("INSERT INTO cccat14.ride (ride_id, passenger_id, status, from_lat, from_long, to_lat, to_long, date) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [ride.rideId, ride.passengerId, ride.status, ride.fromLat, ride.fromLong, ride.toLat, ride.toLong, ride.date]);
         await connection.$pool.end();

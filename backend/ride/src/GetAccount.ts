@@ -1,20 +1,11 @@
-import GetAccountAccountDAO from "./GetAccountAccountDAO";
-
-export interface IAccount {
-	account_id: string;
-	name: string;
-	email: string;
-	cpf: string;
-	car_plate: string;
-	is_passenger: boolean;
-	is_driver: boolean;
-}
+import Account from "./Account";
+import GetAccountAccountRepository from "./GetAccountAccountRepository";
 
 export default class GetAccount {
-	constructor(private accountDAO: GetAccountAccountDAO) { }
+	constructor(private accountRepository: GetAccountAccountRepository) { }
 
-	async execute(accountId: string): Promise<IAccount> {
-		const account = await this.accountDAO.getById(accountId);
+	async execute(accountId: string): Promise<Account | undefined> {
+		const account = await this.accountRepository.getById(accountId);
 		return account;
 	}
 }

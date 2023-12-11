@@ -1,4 +1,4 @@
-import RideDAO from "./RideDAODatabase";
+import RideDAO from "./RideRepositoryDatabase";
 
 export interface IRide {
     ride_id: string;
