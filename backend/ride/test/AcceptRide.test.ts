@@ -21,7 +21,7 @@ beforeEach(() => {
     getAccount = new GetAccount(accountDAO);
     requestRide = new RequestRide(accountDAO, rideDAO, logger);
     acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
-    getRide = new GetRide(rideDAO);
+    getRide = new GetRide(rideDAO, logger);
 });
 
 test("Deve aceitar uma corrida", async () => {
@@ -58,6 +58,7 @@ test("Deve aceitar uma corrida", async () => {
     await acceptRide.execute(inputAcceptRide);
     const outputGetRide = await getRide.execute(outputRequestRide.rideId);
     expect(outputGetRide.status).toBe("accepted");
+    expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
 test("Não deve aceitar uma corrida se não for um motorista", async () => {

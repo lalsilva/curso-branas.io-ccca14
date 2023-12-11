@@ -1,26 +1,26 @@
+import Logger from "./Logger";
 import RideDAO from "./RideRepositoryDatabase";
-
-export interface IRide {
-    ride_id: string;
-    passenger_id: string;
-    driver_id: string;
-    status: string;
-    fare: number;
-    distance: number;
-    from_lat: number;
-    from_long: number;
-    to_lat: number;
-    to_long: number;
-    date: Date;
-}
 
 export default class GetRide {
 
-    constructor(private rideDAO: RideDAO) {
+    constructor(private rideDAO: RideDAO, private logger: Logger) {
     }
 
-    async execute(rideId: string): Promise<IRide> {
+    async execute(rideId: string): Promise<Output> {
         const ride = await this.rideDAO.getById(rideId);
-        return ride;
+        if (!ride) throw new Error("Corrida não encontrada");
+        return {
+            rideId: ride.rideId,
+            status: ride.getStatus(),
+            driverId: ride.getDriverId(),
+            passengerId: ride.passengerId
+        };
     }
+}
+
+type Output = {
+    rideId: string;
+    status: string;
+    driverId: string;
+    passengerId: string;
 }

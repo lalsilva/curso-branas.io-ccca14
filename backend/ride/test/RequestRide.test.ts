@@ -15,7 +15,7 @@ beforeEach(() => {
     const logger = new LoggerConsole();
     signup = new Signup(accountDAO, logger);
     requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    getRide = new GetRide(rideDAO);
+    getRide = new GetRide(rideDAO, logger);
 });
 
 test("Deve solicitar uma corrida", async () => {

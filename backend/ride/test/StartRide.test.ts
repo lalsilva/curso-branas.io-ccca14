@@ -23,7 +23,7 @@ beforeEach(() => {
     getAccount = new GetAccount(accountDAO);
     requestRide = new RequestRide(accountDAO, rideDAO, logger);
     acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
-    getRide = new GetRide(rideDAO);
+    getRide = new GetRide(rideDAO, logger);
     startRide = new StartRide(rideDAO, logger);
 });
 
