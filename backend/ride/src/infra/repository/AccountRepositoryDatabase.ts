@@ -1,4 +1,3 @@
-import pgp from 'pg-promise';
 import AccountRepository from '../../application/repository/AccountRepository';
 import Account from '../../domain/Account';
 import DatabaseConnection from '../database/DatabaseConnection';

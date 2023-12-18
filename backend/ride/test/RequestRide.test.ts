@@ -14,7 +14,7 @@ let databaseConnection: PgPromiseAdapter;
 beforeEach(() => {
     databaseConnection = new PgPromiseAdapter();
     const accountRepository = new AccountRepositoryDatabase(databaseConnection);
-    const rideRepository = new RideRepositoryDatabase();
+    const rideRepository = new RideRepositoryDatabase(databaseConnection);
     const logger = new LoggerConsole();
     signup = new Signup(accountRepository, logger);
     requestRide = new RequestRide(accountRepository, rideRepository, logger);
