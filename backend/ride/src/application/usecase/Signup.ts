@@ -1,28 +1,17 @@
-import Logger from "./Logger";
-import SignupAccountDAO from "./SignupAccountRepository";
-import Account from "./Account";
-
-export type TAccount = {
-	accountId?: string;
-	name: string;
-	email: string;
-	cpf: string;
-	isPassenger?: boolean;
-	isDriver?: boolean;
-	carPlate?: string;
-	password: string;
-}
+import Logger from "../logger/Logger";
+import AccountRepository from "../repository/AccountRepository";
+import Account from "../../domain/Account";
 
 export default class Signup {
 
-	constructor(private accountDAO: SignupAccountDAO, private logger: Logger) { }
+	constructor(private accountRepository: AccountRepository, private logger: Logger) { }
 
 	async execute(input: Input): Promise<Output> {
 		this.logger.log(`signup ${input.name}`);
-		const existingAccount = await this.accountDAO.getByEmail(input.email);
+		const existingAccount = await this.accountRepository.getByEmail(input.email);
 		if (existingAccount) throw new Error("Conta duplicada");
 		const account = Account.create(input.name, input.email, input.cpf, input.carPlate || "", !!input.isPassenger, !!input.isDriver);
-		await this.accountDAO.save(account);
+		await this.accountRepository.save(account);
 		return {
 			accountId: account.accountId,
 		};

@@ -1,21 +1,24 @@
-import AccountDAODatabase from "../src/AccountRepositoryDatabase";
-import GetRide from "../src/GetRide";
-import LoggerConsole from "../src/LoggerConsole";
-import RequestRide from "../src/RequestRide";
-import RideDAODatabase from "../src/RideRepositoryDatabase";
-import Signup from "../src/Signup";
+import AccountRepositoryDatabase from "../src/infra/repository/AccountRepositoryDatabase";
+import GetRide from "../src/application/usecase/GetRide";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideRepositoryDatabase from "../src/infra/repository/RideRepositoryDatabase";
+import Signup from "../src/application/usecase/Signup";
 
 let signup: Signup;
 let requestRide: RequestRide;
 let getRide: GetRide;
+let databaseConnection: PgPromiseAdapter;
 
 beforeEach(() => {
-    const accountDAO = new AccountDAODatabase();
-    const rideDAO = new RideDAODatabase();
+    databaseConnection = new PgPromiseAdapter();
+    const accountRepository = new AccountRepositoryDatabase(databaseConnection);
+    const rideRepository = new RideRepositoryDatabase();
     const logger = new LoggerConsole();
-    signup = new Signup(accountDAO, logger);
-    requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    getRide = new GetRide(rideDAO, logger);
+    signup = new Signup(accountRepository, logger);
+    requestRide = new RequestRide(accountRepository, rideRepository, logger);
+    getRide = new GetRide(rideRepository, logger);
 });
 
 test("Deve solicitar uma corrida", async () => {
@@ -85,4 +88,8 @@ test("Não deve poder solicitar uma corrida se já existir uma solicitação par
     }
     await requestRide.execute(inputRequestRide);
     await expect(() => requestRide.execute(inputRequestRide)).rejects.toThrow(new Error("Já exsite uma corrida em andamento para esse passageiro"));
+});
+
+afterEach(async () => {
+    await databaseConnection.close();
 });

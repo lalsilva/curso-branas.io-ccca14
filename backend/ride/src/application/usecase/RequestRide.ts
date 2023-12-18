@@ -1,8 +1,8 @@
 import crypto from "crypto";
-import RideDAO from './RideRepository';
-import Logger from "./Logger";
-import AccountDAO from "./AccountRepository";
-import Ride from "./Ride";
+import RideDAO from '../repository/RideRepository';
+import Logger from "../logger/Logger";
+import AccountDAO from "../repository/AccountRepository";
+import Ride from "../../domain/Ride";
 
 export default class RequestRide {
 

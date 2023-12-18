@@ -1,6 +1,6 @@
-import AccountDAO from "./AccountRepository";
-import Logger from "./Logger";
-import RideDAO from "./RideRepository";
+import AccountDAO from "../repository/AccountRepository";
+import Logger from "../logger/Logger";
+import RideDAO from "../repository/RideRepository";
 
 export default class AcceptRide {
 

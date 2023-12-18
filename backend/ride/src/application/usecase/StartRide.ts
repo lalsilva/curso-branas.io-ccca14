@@ -1,5 +1,5 @@
-import LoggerConsole from "./LoggerConsole";
-import RideDAO from "./RideRepository";
+import LoggerConsole from "../../infra/logger/LoggerConsole";
+import RideDAO from "../repository/RideRepository";
 
 export default class StartRide {
 

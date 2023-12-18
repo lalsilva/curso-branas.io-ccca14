@@ -1,12 +1,13 @@
-import AcceptRide from "../src/AcceptRide";
-import AccountDAODatabase from "../src/AccountRepositoryDatabase";
-import GetAccount from "../src/GetAccount";
-import GetRide from "../src/GetRide";
-import LoggerConsole from "../src/LoggerConsole";
-import RequestRide from "../src/RequestRide";
-import RideDAODatabase from "../src/RideRepositoryDatabase";
-import Signup from "../src/Signup";
-import StartRide from "../src/StartRide";
+import AcceptRide from "../src/application/usecase/AcceptRide";
+import AccountRepositoryDatabase from "../src/infra/repository/AccountRepositoryDatabase";
+import GetAccount from "../src/application/usecase/GetAccount";
+import GetRide from "../src/application/usecase/GetRide";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideRepositoryDatabase from "../src/infra/repository/RideRepositoryDatabase";
+import Signup from "../src/application/usecase/Signup";
+import StartRide from "../src/application/usecase/StartRide";
 
 let signup: Signup;
 let getAccount: GetAccount;
@@ -14,17 +15,19 @@ let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let getRide: GetRide;
 let startRide: StartRide;
+let databaseConnection: PgPromiseAdapter;
 
 beforeEach(() => {
-    const accountDAO = new AccountDAODatabase();
-    const rideDAO = new RideDAODatabase();
+    databaseConnection = new PgPromiseAdapter();
+    const accountRepository = new AccountRepositoryDatabase(databaseConnection);
+    const rideRepository = new RideRepositoryDatabase();
     const logger = new LoggerConsole();
-    signup = new Signup(accountDAO, logger);
-    getAccount = new GetAccount(accountDAO);
-    requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
-    getRide = new GetRide(rideDAO, logger);
-    startRide = new StartRide(rideDAO, logger);
+    signup = new Signup(accountRepository, logger);
+    getAccount = new GetAccount(accountRepository);
+    requestRide = new RequestRide(accountRepository, rideRepository, logger);
+    acceptRide = new AcceptRide(rideRepository, accountRepository, logger);
+    getRide = new GetRide(rideRepository, logger);
+    startRide = new StartRide(rideRepository, logger);
 });
 
 test("Deve iniciar uma corrida", async () => {
@@ -65,4 +68,8 @@ test("Deve iniciar uma corrida", async () => {
     await startRide.execute(inputStartRide);
     const outputGetRide = await getRide.execute(outputRequestRide.rideId);
     expect(outputGetRide.status).toBe("in_progress");
+});
+
+afterEach(async () => {
+    await databaseConnection.close();
 });

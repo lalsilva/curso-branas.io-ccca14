@@ -1,27 +1,30 @@
-import AcceptRide from "../src/AcceptRide";
-import AccountDAODatabase from "../src/AccountRepositoryDatabase";
-import GetAccount from "../src/GetAccount";
-import GetRide from "../src/GetRide";
-import LoggerConsole from "../src/LoggerConsole";
-import RequestRide from "../src/RequestRide";
-import RideDAODatabase from "../src/RideRepositoryDatabase";
-import Signup from "../src/Signup";
+import AcceptRide from "../src/application/usecase/AcceptRide";
+import AccountRepositoryDatabase from "../src/infra/repository/AccountRepositoryDatabase";
+import GetAccount from "../src/application/usecase/GetAccount";
+import GetRide from "../src/application/usecase/GetRide";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideRepositoryDatabase from "../src/infra/repository/RideRepositoryDatabase";
+import Signup from "../src/application/usecase/Signup";
 
 let signup: Signup;
 let getAccount: GetAccount;
 let requestRide: RequestRide;
 let acceptRide: AcceptRide;
 let getRide: GetRide;
+let databaseConnection: PgPromiseAdapter;
 
 beforeEach(() => {
-    const accountDAO = new AccountDAODatabase();
-    const rideDAO = new RideDAODatabase();
+    databaseConnection = new PgPromiseAdapter();
+    const accountRepository = new AccountRepositoryDatabase(databaseConnection);
+    const rideRepository = new RideRepositoryDatabase();
     const logger = new LoggerConsole();
-    signup = new Signup(accountDAO, logger);
-    getAccount = new GetAccount(accountDAO);
-    requestRide = new RequestRide(accountDAO, rideDAO, logger);
-    acceptRide = new AcceptRide(rideDAO, accountDAO, logger);
-    getRide = new GetRide(rideDAO, logger);
+    signup = new Signup(accountRepository, logger);
+    getAccount = new GetAccount(accountRepository);
+    requestRide = new RequestRide(accountRepository, rideRepository, logger);
+    acceptRide = new AcceptRide(rideRepository, accountRepository, logger);
+    getRide = new GetRide(rideRepository, logger);
 });
 
 test("Deve aceitar uma corrida", async () => {
@@ -91,4 +94,8 @@ test("Não deve aceitar uma corrida se não for um motorista", async () => {
         driverId: outputSignupDriver.accountId
     }
     await expect(() => acceptRide.execute(inputAcceptRide)).rejects.toThrow(new Error("Somente motoristas podem aceitar uma corrida"));
+});
+
+afterEach(async () => {
+    await databaseConnection.close();
 });

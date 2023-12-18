@@ -1,5 +1,5 @@
-import Logger from "./Logger";
-import RideDAO from "./RideRepositoryDatabase";
+import Logger from "../logger/Logger";
+import RideDAO from "../../infra/repository/RideRepositoryDatabase";
 
 export default class GetRide {
 
